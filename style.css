@@ -1,0 +1,63 @@
+/* ============================================
+   AI Executive Capture — style.css
+   Tailwind (via CDN) handles all utility classes.
+   This file covers what Tailwind can't:
+   scroll offsets, focus states, and the
+   hero's live capture feed animation.
+   ============================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Offset anchored sections so the sticky header never covers the heading */
+#how-it-works,
+#architecture,
+#try-it {
+  scroll-margin-top: 88px;
+}
+
+/* Visible keyboard focus on links and buttons */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #4f46e5;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Fade transition used when the live capture feed rotates examples */
+.capture-fade {
+  transition: opacity 0.5s ease;
+}
+
+.capture-fade.is-hidden {
+  opacity: 0;
+}
+
+/* Subtle pulse on the "live" indicator dot in the hero panel */
+#feed-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Respect reduced-motion preferences throughout the page */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .capture-fade {
+    transition: none;
+  }
+  #feed-dot {
+    animation: none;
+  }
+}

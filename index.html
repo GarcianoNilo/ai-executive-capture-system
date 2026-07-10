@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Executive Capture — Never lose a thought again</title>
+  <meta
+    name="description"
+    content="Capture ideas, tasks, and follow-ups from anywhere. AI organizes everything into one operational memory so nothing gets forgotten."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: "#0A0A0A",
+            subink: "#52525B",
+            faint: "#8A8A93",
+            border: "#E4E4E7",
+            subtle: "#FAFAFA",
+            accent: "#4F46E5",
+            danger: "#B91C1C",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+            mono: ['"JetBrains Mono"', "monospace"],
+          },
+          maxWidth: {
+            content: "1200px",
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-white text-ink font-sans antialiased">
+
+  <!-- ============================================ -->
+  <!-- NAVIGATION                                    -->
+  <!-- ============================================ -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-border">
+    <nav class="max-w-content mx-auto flex items-center justify-between px-6 py-4" aria-label="Primary">
+      <a href="#top" class="text-[15px] font-semibold tracking-tight">AI Executive Capture</a>
+
+      <!-- Desktop links -->
+      <ul class="hidden md:flex items-center gap-8 text-[14px] text-subink">
+        <li><a href="#how-it-works" class="hover:text-ink transition-colors">How It Works</a></li>
+        <li><a href="#architecture" class="hover:text-ink transition-colors">Architecture</a></li>
+        <li><a href="#try-it" class="hover:text-ink transition-colors">Try It</a></li>
+        <li>
+          <a href="https://github.com/GarcianoNilo" target="_blank" rel="noopener" class="hover:text-ink transition-colors">
+            GitHub ↗
+          </a>
+        </li>
+      </ul>
+
+      <!-- Mobile menu toggle -->
+      <button
+        id="menu-toggle"
+        class="md:hidden flex flex-col justify-center gap-[5px] w-6 h-6"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="block h-[1.5px] w-full bg-ink"></span>
+        <span class="block h-[1.5px] w-full bg-ink"></span>
+      </button>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-border bg-white">
+      <ul class="flex flex-col px-6 py-4 gap-4 text-[14px] text-subink">
+        <li><a href="#how-it-works" class="block hover:text-ink">How It Works</a></li>
+        <li><a href="#architecture" class="block hover:text-ink">Architecture</a></li>
+        <li><a href="#try-it" class="block hover:text-ink">Try It</a></li>
+        <li>
+          <a href="https://github.com/GarcianoNilo" target="_blank" rel="noopener" class="block hover:text-ink">
+            GitHub ↗
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============================================ -->
+    <!-- HERO                                          -->
+    <!-- ============================================ -->
+    <section class="max-w-content mx-auto px-6 pt-40 pb-24 md:pt-48 md:pb-32 grid md:grid-cols-2 gap-16 items-center">
+      <div>
+        <p class="font-mono text-[12px] uppercase tracking-[0.15em] text-accent mb-6">AI Capture System</p>
+        <h1 class="text-[40px] leading-[1.05] md:text-[56px] md:leading-[1.05] font-semibold tracking-tight mb-6">
+          Never lose a thought again.
+        </h1>
+        <p class="text-[17px] md:text-[18px] leading-relaxed text-subink max-w-md mb-10">
+          Send a message or leave a voice note. AI reads it, sorts it, and adds it to one operational memory you can always trust.
+        </p>
+        <div class="flex flex-wrap items-center gap-4">
+          <a
+            href="#try-it"
+            class="inline-flex items-center justify-center rounded-lg bg-ink text-white px-6 py-3 text-[15px] font-medium hover:bg-black/80 transition-colors"
+          >
+            Try the System
+          </a>
+          <a
+            href="#architecture"
+            class="inline-flex items-center justify-center rounded-lg border border-border px-6 py-3 text-[15px] font-medium text-ink hover:border-ink transition-colors"
+          >
+            View Architecture
+          </a>
+        </div>
+      </div>
+
+      <!-- Signature element: live capture feed -->
+      <div class="relative">
+        <div class="rounded-xl border border-border bg-subtle p-6 font-mono text-[13px] leading-relaxed shadow-sm" aria-live="polite">
+          <div class="flex items-center gap-2 mb-5">
+            <span id="feed-dot" class="h-2 w-2 rounded-full bg-accent"></span>
+            <span class="text-faint text-[11px] uppercase tracking-[0.1em]">Operational memory</span>
+          </div>
+          <div id="capture-input" class="capture-fade text-subink mb-3">—</div>
+          <div class="h-px bg-border my-4"></div>
+          <div id="capture-output" class="capture-fade text-ink"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- PROBLEM                                       -->
+    <!-- ============================================ -->
+    <section id="how-it-works" class="border-t border-border">
+      <div class="max-w-content mx-auto px-6 py-24 md:py-32">
+        <p class="font-mono text-[12px] uppercase tracking-[0.15em] text-faint mb-4">The problem</p>
+        <h2 class="text-[28px] md:text-[36px] font-semibold tracking-tight max-w-2xl mb-6">
+          Information has too many doors.
+        </h2>
+        <p class="text-[17px] text-subink max-w-xl leading-relaxed mb-14">
+          Ideas, tasks, and follow-ups arrive from every direction — a call, a hallway conversation, a late-night thought.
+          Most of it never makes it anywhere durable.
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-x-12 gap-y-8 border-t border-border pt-10">
+          <div class="border-b border-border pb-8">
+            <p class="text-[15px] font-medium mb-1">Ideas disappear</p>
+            <p class="text-[14px] text-subink">A good thought at the wrong moment is gone by morning.</p>
+          </div>
+          <div class="border-b border-border pb-8">
+            <p class="text-[15px] font-medium mb-1">Tasks get forgotten</p>
+            <p class="text-[14px] text-subink">Whatever isn't written down competes with everything else in your head.</p>
+          </div>
+          <div class="border-b border-border pb-8 md:border-b-0">
+            <p class="text-[15px] font-medium mb-1">Follow-ups slip through</p>
+            <p class="text-[14px] text-subink">Commitments made in passing rarely get revisited on their own.</p>
+          </div>
+          <div class="pb-2">
+            <p class="text-[15px] font-medium mb-1">Knowledge stays in one head</p>
+            <p class="text-[14px] text-subink">Nothing gets easier to hand off if it never leaves your memory.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- SOLUTION                                      -->
+    <!-- ============================================ -->
+    <section class="border-t border-border bg-subtle">
+      <div class="max-w-content mx-auto px-6 py-24 md:py-32">
+        <p class="font-mono text-[12px] uppercase tracking-[0.15em] text-faint mb-4">The solution</p>
+        <h2 class="text-[28px] md:text-[36px] font-semibold tracking-tight max-w-2xl mb-14">
+          One system. Every input.
+        </h2>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="rounded-xl border border-border bg-white p-8">
+            <p class="text-[15px] font-semibold mb-2">Universal Capture</p>
+            <p class="text-[14px] text-subink leading-relaxed">Send a text or a voice note. That's the whole interface.</p>
+          </div>
+          <div class="rounded-xl border border-border bg-white p-8">
+            <p class="text-[15px] font-semibold mb-2">AI Understanding</p>
+            <p class="text-[14px] text-subink leading-relaxed">Every message is classified, summarized, and prioritized automatically.</p>
+          </div>
+          <div class="rounded-xl border border-border bg-white p-8">
+            <p class="text-[15px] font-semibold mb-2">Operational Memory</p>
+            <p class="text-[14px] text-subink leading-relaxed">Everything lands in one place — organized, searchable, and never lost.</p>
+          </div>
+          <div class="rounded-xl border border-border bg-white p-8">
+            <p class="text-[15px] font-semibold mb-2">Daily Briefing</p>
+            <p class="text-[14px] text-subink leading-relaxed">Start each day with a short summary of what actually matters.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- ARCHITECTURE                                  -->
+    <!-- ============================================ -->
+    <section id="architecture" class="border-t border-border">
+      <div class="max-w-content mx-auto px-6 py-24 md:py-32">
+        <p class="font-mono text-[12px] uppercase tracking-[0.15em] text-faint mb-4">Architecture</p>
+        <h2 class="text-[28px] md:text-[36px] font-semibold tracking-tight max-w-2xl mb-14">
+          What happens after you hit send.
+        </h2>
+
+        <div class="max-w-xl">
+          <div class="rounded-lg border border-border p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-accent mb-2">Step 01</p>
+            <p class="text-[16px] font-semibold mb-1">Capture</p>
+            <p class="text-[14px] text-subink">A message or voice note comes in from any channel.</p>
+          </div>
+          <div class="flex justify-center py-2" aria-hidden="true">
+            <div class="w-px h-8 bg-border"></div>
+          </div>
+
+          <div class="rounded-lg border border-border p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-accent mb-2">Step 02</p>
+            <p class="text-[16px] font-semibold mb-1">AI Processing</p>
+            <p class="text-[14px] text-subink">Content is classified, summarized, and given a priority.</p>
+          </div>
+          <div class="flex justify-center py-2" aria-hidden="true">
+            <div class="w-px h-8 bg-border"></div>
+          </div>
+
+          <div class="rounded-lg border border-border p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-accent mb-2">Step 03</p>
+            <p class="text-[16px] font-semibold mb-1">Operational Memory</p>
+            <p class="text-[14px] text-subink">The result is logged in a structured, searchable record.</p>
+          </div>
+          <div class="flex justify-center py-2" aria-hidden="true">
+            <div class="w-px h-8 bg-border"></div>
+          </div>
+
+          <div class="rounded-lg border border-border p-6">
+            <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-accent mb-2">Step 04</p>
+            <p class="text-[16px] font-semibold mb-1">Daily Briefing</p>
+            <p class="text-[14px] text-subink">A short daily digest surfaces what needs attention.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- TRY IT                                        -->
+    <!-- ============================================ -->
+    <section id="try-it" class="border-t border-border bg-subtle">
+      <div class="max-w-content mx-auto px-6 py-24 md:py-32">
+        <p class="font-mono text-[12px] uppercase tracking-[0.15em] text-faint mb-4">Try it</p>
+        <h2 class="text-[28px] md:text-[36px] font-semibold tracking-tight max-w-2xl mb-4">
+          Send something real.
+        </h2>
+        <p class="text-[16px] text-subink max-w-xl leading-relaxed mb-12">
+          This goes through the same pipeline described above. Try an idea, a task, or a reminder.
+        </p>
+
+        <div class="max-w-lg">
+          <div id="try-it-card" class="rounded-xl border border-border bg-white p-8">
+            <form id="capture-form" novalidate>
+              <div class="mb-6">
+                <label for="message" class="block text-[13px] font-medium mb-2">Message</label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows="4"
+                  required
+                  placeholder="Type an idea, task, reminder, or client request..."
+                  class="w-full rounded-lg border border-border px-4 py-3 text-[15px] text-ink placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-shadow"
+                ></textarea>
+              </div>
+
+              <div class="mb-6">
+                <label for="audio" class="block text-[13px] font-medium mb-2">
+                  Audio <span class="text-faint font-normal">(optional)</span>
+                </label>
+                <input
+                  type="file"
+                  id="audio"
+                  name="audio"
+                  accept="audio/*"
+                  class="w-full text-[14px] text-subink file:mr-4 file:rounded-lg file:border file:border-border file:bg-white file:px-4 file:py-2 file:text-[13px] file:font-medium file:text-ink hover:file:border-ink file:transition-colors"
+                />
+              </div>
+
+              <button
+                type="submit"
+                id="submit-btn"
+                class="w-full rounded-lg bg-ink text-white px-6 py-3 text-[15px] font-medium hover:bg-black/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Capture Information
+              </button>
+
+              <p id="form-error" class="hidden mt-4 text-[13px] text-danger" role="alert"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================ -->
+  <!-- FOOTER                                        -->
+  <!-- ============================================ -->
+  <footer class="border-t border-border">
+    <div class="max-w-content mx-auto px-6 py-16 grid md:grid-cols-3 gap-10">
+      <div>
+        <p class="text-[15px] font-semibold tracking-tight mb-4">AI Executive Capture</p>
+        <p class="text-[13px] text-subink leading-relaxed max-w-xs">
+          An operational memory system that turns scattered input into something you can act on.
+        </p>
+      </div>
+      <div>
+        <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-faint mb-4">Project</p>
+        <ul class="space-y-2 text-[14px] text-subink">
+          <li><a href="https://github.com/GarcianoNilo" target="_blank" rel="noopener" class="hover:text-ink">GitHub Repository ↗</a></li>
+          <li><a href="#architecture" class="hover:text-ink">Documentation</a></li>
+          <li><a href="#architecture" class="hover:text-ink">Architecture</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-faint mb-4">Built with</p>
+        <ul class="flex flex-wrap gap-2">
+          <li class="font-mono text-[12px] border border-border rounded-md px-2.5 py-1 text-subink">HTML</li>
+          <li class="font-mono text-[12px] border border-border rounded-md px-2.5 py-1 text-subink">TailwindCSS</li>
+          <li class="font-mono text-[12px] border border-border rounded-md px-2.5 py-1 text-subink">Make.com</li>
+          <li class="font-mono text-[12px] border border-border rounded-md px-2.5 py-1 text-subink">OpenAI</li>
+          <li class="font-mono text-[12px] border border-border rounded-md px-2.5 py-1 text-subink">Google Sheets</li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-border">
+      <p class="max-w-content mx-auto px-6 py-6 text-[12px] text-faint">
+        © 2026 AI Executive Capture. Built as a personal automation project.
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
