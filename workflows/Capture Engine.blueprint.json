@@ -1,0 +1,1746 @@
+{
+    "name": "Capture Engine",
+    "flow": [
+        {
+            "id": 2,
+            "module": "gateway:CustomWebHook",
+            "version": 1,
+            "parameters": {
+                "hook": 2559479,
+                "maxResults": 1
+            },
+            "mapper": {},
+            "metadata": {
+                "designer": {
+                    "x": 0,
+                    "y": 0
+                },
+                "restore": {
+                    "parameters": {
+                        "hook": {
+                            "data": {
+                                "editable": "true"
+                            },
+                            "label": "Capture Form"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "hook",
+                        "type": "hook:gateway-webhook",
+                        "label": "Webhook",
+                        "required": true
+                    },
+                    {
+                        "name": "maxResults",
+                        "type": "number",
+                        "label": "Maximum number of results"
+                    }
+                ],
+                "interface": [
+                    {
+                        "name": "message",
+                        "type": "text"
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "text"
+                    },
+                    {
+                        "name": "source",
+                        "type": "text"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 4,
+            "module": "gemini-ai:extractStructuredData",
+            "version": 1,
+            "parameters": {
+                "__IMTCONN__": 9843559
+            },
+            "mapper": {
+                "model": "gemini-3-flash-preview",
+                "contents": [
+                    {
+                        "role": "user",
+                        "parts": [
+                            {
+                                "text": "You are an executive assistant responsible for organizing incoming operational information.\r\n\r\nAnalyze the following input and extract structured information.\r\n\r\nRules:\r\n\r\n- Categorize the information.\r\n- Determine the priority.\r\n- Create a concise title.\r\n- Summarize the request.\r\n- Determine the immediate next action.\r\n- Default owner to \"Executive\".\r\n- Default status to \"OPEN\".\r\n- If no due date is mentioned, leave it blank.\r\n\r\nIncoming Information\r\n\r\nMessage:\r\n{{2.message}}\n\nTimestamp:\r\n{{2.timestamp}} \n\nSource:\r\n {{2.source}}",
+                                "type": "text"
+                            }
+                        ]
+                    }
+                ],
+                "responseSchema": [
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "Short 3–5 word summary.",
+                        "property_name": "Title"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "Choose only one of:\r\nTask, Lead, Idea, Reminder, Client Request, Meeting Follow-up, Reference",
+                        "property_name": "Category"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "Choose only:\r\nHigh, Medium, Low, None",
+                        "property_name": "Priority"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "One or two sentence summary.",
+                        "property_name": "Summary"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "Immediate next physical action required.",
+                        "property_name": "Next_Action"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "Default to Executive unless another owner is clearly mentioned.",
+                        "property_name": "Owner"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "Always OPEN for new captures.",
+                        "property_name": "Status"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "Date mentioned in the message. Leave blank if none.",
+                        "property_name": "Due_Date"
+                    },
+                    {
+                        "type": "string",
+                        "required": true,
+                        "description": "High, Medium, or Low confidence in the categorization.",
+                        "property_name": "Confidence"
+                    },
+                    {
+                        "type": "boolean",
+                        "required": true,
+                        "description": "True if the message is ambiguous or confidence is Low. Otherwise False.",
+                        "property_name": "Needs_Review"
+                    }
+                ],
+                "generationConfig": {
+                    "thinkingConfig": {}
+                }
+            },
+            "metadata": {
+                "designer": {
+                    "x": 300,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "model": {
+                            "mode": "chose",
+                            "label": "Gemini 3 Flash Preview"
+                        },
+                        "contents": {
+                            "mode": "chose",
+                            "items": [
+                                {
+                                    "role": {
+                                        "mode": "chose",
+                                        "label": "User"
+                                    },
+                                    "parts": {
+                                        "mode": "chose",
+                                        "items": [
+                                            {
+                                                "type": {
+                                                    "mode": "chose",
+                                                    "label": "Text"
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
+                        "responseSchema": {
+                            "mode": "chose",
+                            "items": [
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "String",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": "The format is not being validated post generation. Add guidance in the prompt and/or property description.",
+                                                "name": "format",
+                                                "spec": null,
+                                                "type": "select",
+                                                "label": "Format",
+                                                "options": [
+                                                    {
+                                                        "label": "Date-Time",
+                                                        "value": "date-time"
+                                                    },
+                                                    {
+                                                        "label": "Date",
+                                                        "value": "date"
+                                                    },
+                                                    {
+                                                        "label": "Time",
+                                                        "value": "time"
+                                                    },
+                                                    {
+                                                        "label": "Email",
+                                                        "value": "email"
+                                                    },
+                                                    {
+                                                        "label": "Hostname",
+                                                        "value": "hostname"
+                                                    },
+                                                    {
+                                                        "label": "IPv4",
+                                                        "value": "ipv4"
+                                                    },
+                                                    {
+                                                        "label": "IPv6",
+                                                        "value": "ipv6"
+                                                    },
+                                                    {
+                                                        "label": "URI",
+                                                        "value": "uri"
+                                                    },
+                                                    {
+                                                        "label": "UUID",
+                                                        "value": "uuid"
+                                                    },
+                                                    {
+                                                        "label": "Regex",
+                                                        "value": "regex"
+                                                    }
+                                                ],
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "format": {
+                                        "mode": "chose",
+                                        "label": "Empty"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                },
+                                {
+                                    "type": {
+                                        "mode": "chose",
+                                        "label": "Boolean",
+                                        "nested": [
+                                            {
+                                                "help": null,
+                                                "name": "property_name",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Property Name",
+                                                "options": null,
+                                                "required": true
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "description",
+                                                "spec": null,
+                                                "type": "text",
+                                                "label": "Description",
+                                                "options": null,
+                                                "required": false
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "required",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Required Property?",
+                                                "options": null,
+                                                "required": null
+                                            },
+                                            {
+                                                "help": null,
+                                                "name": "array",
+                                                "spec": null,
+                                                "type": "boolean",
+                                                "label": "Make property an array?",
+                                                "options": null,
+                                                "required": null
+                                            }
+                                        ]
+                                    },
+                                    "array": {
+                                        "mode": "chose"
+                                    },
+                                    "required": {
+                                        "mode": "chose"
+                                    }
+                                }
+                            ]
+                        },
+                        "generationConfig": {
+                            "nested": {
+                                "thinkingConfig": {
+                                    "nested": {
+                                        "thinking_level": {
+                                            "mode": "chose",
+                                            "label": "Empty"
+                                        },
+                                        "include_thoughts": {
+                                            "mode": "chose"
+                                        }
+                                    }
+                                },
+                                "mediaResolution": {
+                                    "mode": "chose",
+                                    "label": "Empty"
+                                }
+                            }
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "gemini-ai-q9zyjp"
+                            },
+                            "label": "My Gemini AI connection"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:gemini-ai-q9zyjp",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "model",
+                        "type": "select",
+                        "label": "AI Model",
+                        "required": true
+                    },
+                    {
+                        "name": "contents",
+                        "spec": [
+                            {
+                                "name": "role",
+                                "type": "select",
+                                "label": "Role",
+                                "options": [
+                                    {
+                                        "label": "User",
+                                        "value": "user"
+                                    },
+                                    {
+                                        "label": "Model",
+                                        "value": "model"
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "parts",
+                                "spec": [
+                                    {
+                                        "name": "type",
+                                        "type": "select",
+                                        "label": "Message Type",
+                                        "options": [
+                                            {
+                                                "label": "Text",
+                                                "value": "text",
+                                                "nested": [
+                                                    {
+                                                        "name": "text",
+                                                        "type": "text",
+                                                        "label": "Text",
+                                                        "required": false
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                "label": "File",
+                                                "value": "file",
+                                                "nested": [
+                                                    {
+                                                        "name": "file_data",
+                                                        "spec": [
+                                                            {
+                                                                "name": "mime_type",
+                                                                "type": "text",
+                                                                "label": "Mime Type",
+                                                                "required": false
+                                                            },
+                                                            {
+                                                                "help": "You can use public or signed URLs as input by using the URLs.",
+                                                                "name": "file_uri",
+                                                                "type": "text",
+                                                                "label": "File URI",
+                                                                "required": false
+                                                            }
+                                                        ],
+                                                        "type": "collection",
+                                                        "label": "File Data",
+                                                        "required": false
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "name": "thoughtSignature",
+                                        "type": "text",
+                                        "label": "Thought Signature"
+                                    }
+                                ],
+                                "type": "array",
+                                "label": "Parts"
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Messages",
+                        "required": true
+                    },
+                    {
+                        "name": "responseSchema",
+                        "spec": [
+                            {
+                                "name": "type",
+                                "type": "select",
+                                "label": "Value Type",
+                                "options": [
+                                    {
+                                        "label": "String",
+                                        "value": "string",
+                                        "nested": "rpc://gemini-ai/1/createResponseSchema?type=string"
+                                    },
+                                    {
+                                        "label": "Enum",
+                                        "value": "enum",
+                                        "nested": "rpc://gemini-ai/1/createResponseSchema?type=enum"
+                                    },
+                                    {
+                                        "label": "Number",
+                                        "value": "number",
+                                        "nested": "rpc://gemini-ai/1/createResponseSchema?type=number"
+                                    },
+                                    {
+                                        "label": "Integer",
+                                        "value": "integer",
+                                        "nested": "rpc://gemini-ai/1/createResponseSchema?type=integer"
+                                    },
+                                    {
+                                        "label": "Boolean",
+                                        "value": "boolean",
+                                        "nested": "rpc://gemini-ai/1/createResponseSchema?type=boolean"
+                                    },
+                                    {
+                                        "label": "Object",
+                                        "value": "object",
+                                        "nested": "rpc://gemini-ai/1/createResponseSchema?type=object"
+                                    }
+                                ],
+                                "required": true
+                            }
+                        ],
+                        "type": "array",
+                        "label": "Response Schema",
+                        "required": true
+                    },
+                    {
+                        "name": "generationConfig",
+                        "spec": [
+                            {
+                                "name": "thinkingConfig",
+                                "spec": [
+                                    {
+                                        "name": "thinkingBudget",
+                                        "type": "number",
+                                        "label": "Thinking Budget"
+                                    },
+                                    {
+                                        "name": "include_thoughts",
+                                        "type": "boolean",
+                                        "label": "Include Thoughts"
+                                    },
+                                    {
+                                        "name": "thinking_level",
+                                        "type": "select",
+                                        "label": "Thinking Level",
+                                        "validate": {
+                                            "enum": [
+                                                "low",
+                                                "high"
+                                            ]
+                                        }
+                                    }
+                                ],
+                                "type": "collection",
+                                "label": "Thinking Config"
+                            },
+                            {
+                                "name": "mediaResolution",
+                                "type": "select",
+                                "label": "Media Resolution",
+                                "validate": {
+                                    "enum": [
+                                        "media_resolution_low",
+                                        "media_resolution_medium",
+                                        "media_resolution_high"
+                                    ]
+                                }
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Generation configurations"
+                    }
+                ]
+            }
+        },
+        {
+            "id": 7,
+            "module": "google-sheets:addRow",
+            "version": 2,
+            "parameters": {
+                "__IMTCONN__": 9843867
+            },
+            "mapper": {
+                "from": "drive",
+                "mode": "select",
+                "values": {
+                    "0": "{{4.result.Title}}",
+                    "1": "{{4.result.Category}}",
+                    "2": "{{4.result.Priority}}",
+                    "3": "{{4.result.Summary}}",
+                    "4": "{{4.result.Next_Action}}",
+                    "5": "{{4.result.Status}}",
+                    "6": "{{4.result.Owner}}",
+                    "7": "{{4.result.Due_Date}}",
+                    "8": "{{4.result.Confidence}}",
+                    "9": "{{4.result.Needs_Review}}"
+                },
+                "sheetId": "Sheet1",
+                "spreadsheetId": "/1fjT1Ye3wVP2EHOwHyXR38bhLwYI6ZrNR2BsBJNykmwo",
+                "includesHeaders": true,
+                "insertDataOption": "INSERT_ROWS",
+                "useColumnHeaders": false,
+                "valueInputOption": "USER_ENTERED",
+                "insertUnformatted": false
+            },
+            "metadata": {
+                "designer": {
+                    "x": 600,
+                    "y": 0
+                },
+                "restore": {
+                    "expect": {
+                        "from": {
+                            "label": "My Drive"
+                        },
+                        "mode": {
+                            "label": "Search by path"
+                        },
+                        "sheetId": {
+                            "label": "Sheet1"
+                        },
+                        "spreadsheetId": {
+                            "path": [
+                                "OMS - Operational Memory"
+                            ]
+                        },
+                        "includesHeaders": {
+                            "label": "Yes"
+                        },
+                        "insertDataOption": {
+                            "mode": "chose",
+                            "label": "Insert rows"
+                        },
+                        "useColumnHeaders": {
+                            "label": "No"
+                        },
+                        "valueInputOption": {
+                            "mode": "chose",
+                            "label": "User entered"
+                        },
+                        "insertUnformatted": {
+                            "mode": "chose"
+                        }
+                    },
+                    "parameters": {
+                        "__IMTCONN__": {
+                            "data": {
+                                "scoped": "true",
+                                "connection": "google"
+                            },
+                            "label": "My Google connection (nilojrgarciano2@gmail.com)"
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "__IMTCONN__",
+                        "type": "account:google",
+                        "label": "Connection",
+                        "required": true
+                    }
+                ],
+                "expect": [
+                    {
+                        "name": "mode",
+                        "type": "select",
+                        "label": "Search Method",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "select",
+                                "fromAll",
+                                "map"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "insertUnformatted",
+                        "type": "boolean",
+                        "label": "Unformatted",
+                        "required": true
+                    },
+                    {
+                        "name": "valueInputOption",
+                        "type": "select",
+                        "label": "Value input option",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "USER_ENTERED",
+                                "RAW"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "insertDataOption",
+                        "type": "select",
+                        "label": "Insert data option",
+                        "validate": {
+                            "enum": [
+                                "INSERT_ROWS",
+                                "OVERWRITE"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "type": "select",
+                        "label": "Drive",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                "drive",
+                                "share",
+                                "team"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "spreadsheetId",
+                        "type": "file",
+                        "label": "Spreadsheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "sheetId",
+                        "type": "select",
+                        "label": "Sheet Name",
+                        "required": true
+                    },
+                    {
+                        "name": "includesHeaders",
+                        "type": "select",
+                        "label": "Table contains headers",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                true,
+                                false
+                            ]
+                        }
+                    },
+                    {
+                        "name": "useColumnHeaders",
+                        "type": "select",
+                        "label": "Use column headers as IDs of the columns",
+                        "required": true,
+                        "validate": {
+                            "enum": [
+                                true,
+                                false
+                            ]
+                        }
+                    },
+                    {
+                        "name": "values",
+                        "spec": [
+                            {
+                                "name": "0",
+                                "type": "text",
+                                "label": "Title (A)"
+                            },
+                            {
+                                "name": "1",
+                                "type": "text",
+                                "label": "Category (B)"
+                            },
+                            {
+                                "name": "2",
+                                "type": "text",
+                                "label": "Priority (C)"
+                            },
+                            {
+                                "name": "3",
+                                "type": "text",
+                                "label": "Summary (D)"
+                            },
+                            {
+                                "name": "4",
+                                "type": "text",
+                                "label": "Next_Action (E)"
+                            },
+                            {
+                                "name": "5",
+                                "type": "text",
+                                "label": "Status (F)"
+                            },
+                            {
+                                "name": "6",
+                                "type": "text",
+                                "label": "Owner (G)"
+                            },
+                            {
+                                "name": "7",
+                                "type": "text",
+                                "label": "Due_Date (H)"
+                            },
+                            {
+                                "name": "8",
+                                "type": "text",
+                                "label": "Confidence (I)"
+                            },
+                            {
+                                "name": "9",
+                                "type": "text",
+                                "label": "Needs_Review (J)"
+                            },
+                            {
+                                "name": "10",
+                                "type": "text",
+                                "label": "(K)"
+                            },
+                            {
+                                "name": "11",
+                                "type": "text",
+                                "label": "(L)"
+                            },
+                            {
+                                "name": "12",
+                                "type": "text",
+                                "label": "(M)"
+                            },
+                            {
+                                "name": "13",
+                                "type": "text",
+                                "label": "(N)"
+                            },
+                            {
+                                "name": "14",
+                                "type": "text",
+                                "label": "(O)"
+                            },
+                            {
+                                "name": "15",
+                                "type": "text",
+                                "label": "(P)"
+                            },
+                            {
+                                "name": "16",
+                                "type": "text",
+                                "label": "(Q)"
+                            },
+                            {
+                                "name": "17",
+                                "type": "text",
+                                "label": "(R)"
+                            },
+                            {
+                                "name": "18",
+                                "type": "text",
+                                "label": "(S)"
+                            },
+                            {
+                                "name": "19",
+                                "type": "text",
+                                "label": "(T)"
+                            },
+                            {
+                                "name": "20",
+                                "type": "text",
+                                "label": "(U)"
+                            },
+                            {
+                                "name": "21",
+                                "type": "text",
+                                "label": "(V)"
+                            },
+                            {
+                                "name": "22",
+                                "type": "text",
+                                "label": "(W)"
+                            },
+                            {
+                                "name": "23",
+                                "type": "text",
+                                "label": "(X)"
+                            },
+                            {
+                                "name": "24",
+                                "type": "text",
+                                "label": "(Y)"
+                            },
+                            {
+                                "name": "25",
+                                "type": "text",
+                                "label": "(Z)"
+                            }
+                        ],
+                        "type": "collection",
+                        "label": "Values in columns",
+                        "metadata": [
+                            [
+                                [
+                                    "Title",
+                                    "Category",
+                                    "Priority",
+                                    "Summary",
+                                    "Next_Action",
+                                    "Status",
+                                    "Owner",
+                                    "Due_Date",
+                                    "Confidence",
+                                    "Needs_Review"
+                                ]
+                            ]
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "metadata": {
+        "instant": true,
+        "version": 1,
+        "scenario": {
+            "roundtrips": 1,
+            "maxErrors": 3,
+            "autoCommit": true,
+            "autoCommitTriggerLast": true,
+            "sequential": false,
+            "slots": null,
+            "confidential": false,
+            "dataloss": false,
+            "dlq": false,
+            "freshVariables": false
+        },
+        "designer": {
+            "orphans": []
+        },
+        "zone": "us2.make.com",
+        "notes": []
+    }
+}
