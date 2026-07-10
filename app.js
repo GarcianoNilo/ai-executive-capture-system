@@ -82,10 +82,11 @@ const webhookUrl = "https://hook.us2.make.com/bsr9hv7txb8j0o82fbaj23ztsfli12nr";
 // ---- Capture form submission ----
 (function initCaptureForm() {
   const form = document.getElementById("capture-form");
-  const card = document.getElementById("try-it-card");
   const submitBtn = document.getElementById("submit-btn");
   const errorEl = document.getElementById("form-error");
-  if (!form || !card || !submitBtn || !errorEl) return;
+  const successEl = document.getElementById("success-message");
+  const sendAnotherBtn = document.getElementById("send-another-btn");
+  if (!form || !submitBtn || !errorEl || !successEl || !sendAnotherBtn) return;
 
   function showError(message) {
     errorEl.textContent = message;
@@ -98,16 +99,20 @@ const webhookUrl = "https://hook.us2.make.com/bsr9hv7txb8j0o82fbaj23ztsfli12nr";
   }
 
   function showSuccess() {
-    card.innerHTML = `
-      <div class="text-center py-6">
-        <p class="text-[24px] mb-3">✓</p>
-        <p class="text-[16px] font-semibold mb-2">Successfully captured.</p>
-        <p class="text-[14px] text-subink leading-relaxed">
-          Your information has been submitted for AI processing and stored in the operational memory.
-        </p>
-      </div>
-    `;
+    form.classList.add("hidden");
+    successEl.classList.remove("hidden");
   }
+
+  function resetToForm() {
+    form.reset();
+    clearError();
+    successEl.classList.add("hidden");
+    form.classList.remove("hidden");
+    document.getElementById("message").focus();
+  }
+
+  // Let people send another message without reloading the page
+  sendAnotherBtn.addEventListener("click", resetToForm);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -153,6 +158,7 @@ const webhookUrl = "https://hook.us2.make.com/bsr9hv7txb8j0o82fbaj23ztsfli12nr";
       showSuccess();
     } catch (error) {
       showError("Something went wrong. Please try again in a moment.");
+    } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
     }
