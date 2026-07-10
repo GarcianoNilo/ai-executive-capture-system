@@ -1,84 +1,261 @@
 # AI Executive Capture & Follow-up System
 
-A single-page landing site for an AI-powered capture pipeline: send a message or a voice note, and AI classifies, prioritizes, and stores it in one operational memory.
-
-Built as a static site — no build step, no framework, ready to deploy to GitHub Pages as-is.
+A lightweight AI-powered operational memory system designed to capture executive thoughts, organize them into actionable items, and deliver concise focus reports so nothing important gets forgotten.
 
 ---
 
-## Live demo
+## Overview
 
-Open `index.html` in a browser, or deploy via GitHub Pages (see below).
+Busy executives often receive information from multiple sources throughout the day—emails, chats, meetings, voice notes, and spontaneous ideas.
 
-## Tech stack
+The challenge isn't collecting information.
 
-- HTML5
-- Vanilla JavaScript (ES6+)
-- Tailwind CSS via CDN
-- [Inter](https://fonts.google.com/specimen/Inter) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) via Google Fonts
+The challenge is ensuring every important thought is captured, understood, prioritized, and resurfaced at the right time.
 
-No npm, no bundler, no framework. Everything runs directly in the browser.
+This project demonstrates a simple but extensible system that solves that problem using AI automation.
 
-## File structure
+---
+
+## Problem
+
+Operational information often gets lost because it arrives in different places and at different times.
+
+Examples include:
+
+- A task mentioned during a meeting
+- A reminder sent through chat
+- A client follow-up noted after a phone call
+- A business idea typed late at night
+
+Without a central operational memory, these items are easily forgotten or delayed.
+
+---
+
+## Solution
+
+The AI Executive Capture & Follow-up System provides a single capture point that automatically:
+
+- Captures incoming information
+- Uses AI to understand and categorize it
+- Stores it in an operational memory
+- Sends scheduled executive focus reports
+- Reduces the need to remember every detail manually
+
+The goal is to reduce cognitive load by ensuring important information is always available when needed.
+
+---
+
+# Features
+
+## Universal Capture
+
+Capture operational information through a simple web interface.
+
+Supported input:
+
+- Text
+- Audio upload (prepared for future transcription support)
+
+---
+
+## AI Categorization
+
+Google Gemini analyzes every submission and extracts structured operational data including:
+
+- Title
+- Category
+- Priority
+- Summary
+- Next Action
+- Owner
+- Due Date
+- Status
+
+---
+
+## Operational Memory
+
+Every captured item is stored inside Google Sheets, creating a simple operational ledger that acts as the system's memory.
+
+---
+
+## Executive Focus Report
+
+A scheduled Make.com workflow automatically:
+
+- Retrieves active operational items
+- Summarizes them using AI
+- Sends a clean executive briefing by email
+
+This ensures important work resurfaces automatically instead of being forgotten.
+
+---
+
+# System Architecture
 
 ```
-.
-├── index.html   → Page structure and content (nav, hero, sections, form)
-├── style.css    → Scroll offsets, focus states, and the hero's live-feed animation
-├── app.js       → Mobile nav, live capture feed demo, and the webhook submission
-└── README.md    → This file
+                    User
+
+                     │
+
+                     ▼
+
+          GitHub Pages Capture Form
+
+                     │
+
+                     ▼
+
+            Make.com Webhook
+
+                     │
+
+                     ▼
+
+      Google Gemini AI (Structured Data)
+
+                     │
+
+                     ▼
+
+         Google Sheets Operational Memory
+
+                     │
+
+          Scheduled Make.com Workflow
+
+                     │
+
+                     ▼
+
+      Google Gemini AI (Executive Summary)
+
+                     │
+
+                     ▼
+
+             Executive Focus Report
+                    (Email)
 ```
 
-Tailwind handles almost all styling via utility classes directly in `index.html`. `style.css` only covers what Tailwind can't: anchor scroll offsets under the sticky header, visible keyboard focus rings, and the fade/pulse animation in the hero panel.
+---
 
-## Configuration
+# Technology Stack
 
-The **Try It** form submits to a Make.com webhook. To point it at your own scenario, open `app.js` and update:
+| Component | Technology |
+|-----------|------------|
+| Frontend | HTML, CSS, JavaScript |
+| Hosting | GitHub Pages |
+| Automation | Make.com |
+| AI | Google Gemini |
+| Data Storage | Google Sheets |
+| Email | Gmail |
 
-```js
-const webhookUrl = "https://hook.us2.make.com/your-webhook-id-here";
+---
+
+# Project Structure
+
+```
+ai-executive-capture-system/
+
+│
+├── index.html
+├── style.css
+├── app.js
+├── README.md
+│
+├── workflows/
+│   ├── capture-engine.json
+│   └── executive-focus-report.json
+│
+└── docs/
+    └── architecture.png
 ```
 
-The form sends a `multipart/form-data` POST with these fields:
+---
 
-| Field       | Type   | Notes                                   |
-|-------------|--------|------------------------------------------|
-| `message`   | text   | Required                                 |
-| `audio`     | file   | Optional, `accept="audio/*"`             |
-| `timestamp` | text   | ISO 8601, generated client-side          |
-| `source`    | text   | Always `"Web Landing Page"`              |
+# Workflow Overview
 
-If your Make.com webhook module expects JSON rather than form data, the request will still send successfully from the browser but the scenario won't parse the fields correctly — worth testing with a real submission before relying on it.
+## Capture Engine
 
-## Deploying to GitHub Pages
+```
+Capture Form
+      ↓
+Make Webhook
+      ↓
+Gemini AI
+      ↓
+Google Sheets
+```
 
-1. Push these files to the root of a repository (or to a `/docs` folder, or a `gh-pages` branch — whichever you configure).
-2. In the repo, go to **Settings → Pages**.
-3. Set the source branch/folder and save.
-4. GitHub will publish the site at `https://<username>.github.io/<repo-name>/`.
+Responsibilities:
 
-No build step runs on GitHub's side — it serves the static files directly.
+- Receive submissions
+- Extract structured operational information
+- Save into Operational Memory
 
-## Customizing the content
+---
 
-- **Copy**: all section text lives directly in `index.html`, organized under clearly commented sections (`HERO`, `PROBLEM`, `SOLUTION`, `ARCHITECTURE`, `TRY IT`, `FOOTER`).
-- **Live capture feed examples**: the rotating input/output pairs in the hero panel are defined as an array in `app.js` under `initCaptureFeed()` — edit the `examples` array to change them.
-- **Colors and fonts**: defined once in the `tailwind.config` script block at the top of `index.html`, so every utility class (`bg-accent`, `text-subink`, etc.) stays in sync.
-- **GitHub links**: currently point to a placeholder — update the `href` values in the nav and footer once the real repository exists.
+## Executive Focus Report
 
-## Accessibility
+```
+Scheduler
+      ↓
+Google Sheets
+      ↓
+Gemini AI
+      ↓
+Email
+```
 
-- Semantic HTML throughout (`header`, `nav`, `main`, `section`, `footer`, proper `label`/`input` pairing).
-- Keyboard-visible focus states on all links and buttons.
-- `aria-live="polite"` on the live capture feed so screen readers aren't interrupted mid-cycle.
-- Animations (feed rotation, pulse dot, smooth scroll) are disabled under `prefers-reduced-motion: reduce`.
+Responsibilities:
 
-## Performance
+- Retrieve active operational items
+- Generate executive summary
+- Deliver scheduled briefing
 
-- No JavaScript framework, no bundler, no build artifacts.
-- Tailwind and fonts load from CDN; everything else is three small static files.
-- Designed to load fast on GitHub Pages with no additional optimization needed.
+---
 
-## Built with
+# Assumptions
 
-HTML · Tailwind CSS · Make.com · OpenAI · Google Sheets
+This proof of concept was built without access to production systems.
+
+Assumptions include:
+
+- Google Sheets serves as the operational ledger.
+- The executive has access to Google Workspace.
+- CRM integrations (e.g., GoHighLevel) would be connected once production credentials are available.
+- Audio uploads are included for future transcription workflows.
+
+---
+
+# Future Improvements
+
+Possible production enhancements include:
+
+- GoHighLevel CRM integration
+- Slack integration
+- Gmail monitoring
+- Voice transcription using Gemini or Whisper
+- Calendar synchronization
+- Automatic follow-up reminders
+- Task completion workflow
+- Multi-user support
+- Executive dashboard
+- Analytics and reporting
+
+---
+
+# Why This System
+
+This project is intentionally focused on solving one problem well:
+
+> Capture operational information, organize it with AI, and ensure nothing important is forgotten.
+
+Instead of creating another task manager, this system acts as an operational memory that reduces cognitive load and helps executives focus on decision-making rather than remembering every detail.
+
+---
+
+# License
+
+This repository was created as a technical demonstration and portfolio project.
